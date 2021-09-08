@@ -6,8 +6,9 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 
-const UserList = ({ users, isLoading }) => {
+const UserList = ({ users, isLoading, onCountryChange }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
+  const [selectedCountries, setSelectedCountries] = useState([]);
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -17,13 +18,32 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
+  const isCountryInList = (value) => {
+    return selectedCountries.filter(countryCode=>countryCode === value).length > 0
+  }
+  const onChange = (value) =>{
+    let currentSelectedCountries = [...selectedCountries];
+    if(isCountryInList(value)){
+      currentSelectedCountries = 
+        currentSelectedCountries.filter(countryCode=>countryCode != value);
+    } else {
+      currentSelectedCountries.push(value);
+    }
+    setSelectedCountries(currentSelectedCountries);
+    };
+
+    useEffect(()=>{
+      onCountryChange(selectedCountries);
+    }, [selectedCountries]);
+
   return (
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" />
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
+        <CheckBox value="BR" label="Brazil" onChange = {onChange}/>
+        <CheckBox value="AU" label="Australia" onChange = {onChange}/>
+        <CheckBox value="CA" label="Canada" onChange = {onChange}/>
+        <CheckBox value="DE" label="Germany" onChange = {onChange}/>
+        <CheckBox value="NL" label="Netherlands" onChange = {onChange}/>
       </S.Filters>
       <S.List>
         {users.map((user, index) => {
