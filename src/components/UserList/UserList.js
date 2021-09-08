@@ -5,8 +5,11 @@ import CheckBox from "components/CheckBox";
 import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
+import { v4 as uuid } from 'uuid';
+import { useFavoriteFetch } from '../../hooks';
 
 const UserList = ({ users, isLoading, onCountryChange }) => {
+  const { favorites } = useFavoriteFetch()
   const [hoveredUserId, setHoveredUserId] = useState();
   const [selectedCountries, setSelectedCountries] = useState([]);
 
@@ -21,7 +24,7 @@ const UserList = ({ users, isLoading, onCountryChange }) => {
   const isCountryInList = (value) => {
     return selectedCountries.filter(countryCode=>countryCode === value).length > 0
   }
-  const onChange = (value) =>{
+  const onChange = (value) => {
     let currentSelectedCountries = [...selectedCountries];
     if(isCountryInList(value)){
       currentSelectedCountries = 
@@ -32,9 +35,19 @@ const UserList = ({ users, isLoading, onCountryChange }) => {
     setSelectedCountries(currentSelectedCountries);
     };
 
+    const onFavoriteClick = (user) => {
+      user.customID = uuid();
+      const newFavorites = favorites ? [...favorites] : [];
+      // TODO: Check if user is in favorites -> if so, remove from favorites,
+      // otherwise - add.
+      newFavorites.push(user)
+      localStorage.setItem('favoriteUsers_FindPPL', JSON.stringify(newFavorites));
+    }
+
     useEffect(()=>{
       onCountryChange(selectedCountries);
     }, [selectedCountries]);
+
 
   return (
     <S.UserList>
@@ -67,7 +80,7 @@ const UserList = ({ users, isLoading, onCountryChange }) => {
                 </Text>
               </S.UserInfo>
               <S.IconButtonWrapper isVisible={index === hoveredUserId}>
-                <IconButton>
+                <IconButton onClick={()=>onFavoriteClick(user)}>
                   <FavoriteIcon color="error" />
                 </IconButton>
               </S.IconButtonWrapper>
